@@ -3,6 +3,7 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+// TODO: change to baseurl
 const URL_START = 'https://api.tvmaze.com/';
 
 
@@ -19,34 +20,18 @@ will probably have to enter specific params to our api url
  *    (if no image URL given by API, put in a default image URL)
  */
 
-
 async function getShowsByTerm(searchTerm) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
   const response = await fetch(`${URL_START}search/shows?q=${searchTerm}`);
-  // const showDetailsArray = [];
   const showsArray = await response.json();
 
-
-  // loop over await response.json(), access each value, add to a value
-  // use map, return new array with an object of just these keys
-  // const showDetailsArray = [];
-  // for (let elem of showsArray) {
-  //   let showDetails = {};
-  //   showDetails.id = elem.show.id;
-  //   showDetails.name = elem.show.name;
-  //   showDetails.summary = elem.show.summary;
-  //   showDetails.image = elem.show.image.medium;
-  //   showDetailsArray.push(showDetails);
-  // }
-
-  /** This does exactly the same thing as the loop above */
   const showDetailsArray = showsArray.map((elem) => ({
     id: elem.show.id,
     name: elem.show.name,
-    summary:elem.show.summary,
-    image: elem.show.image.medium,
+    summary: elem.show.summary,
+    // don't need parentheses below and missing image url can be a global const
+    image: (elem.show.image ? elem.show.image.medium : 'https://tinyurl.com/tv-missing'),
   }));
-
 
   return showDetailsArray;
 }
