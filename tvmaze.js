@@ -23,19 +23,29 @@ will probably have to enter specific params to our api url
 async function getShowsByTerm(searchTerm) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
   const response = await fetch(`${URL_START}search/shows?q=${searchTerm}`);
-  const showDetailsArray = [];
-  // for (let shows in response)
+  // const showDetailsArray = [];
+  const showsArray = await response.json();
+
+
   // loop over await response.json(), access each value, add to a value
   // use map, return new array with an object of just these keys
-  const showsArray = await response.json();
-  for (let elem of showsArray) {
-    let showDetails = {};
-    showDetails.id = elem.show.id;
-    showDetails.name = elem.show.name;
-    showDetails.summary = elem.show.summary;
-    showDetails.image = elem.show.image.medium;
-    showDetailsArray.push(showDetails);
-  }
+  // const showDetailsArray = [];
+  // for (let elem of showsArray) {
+  //   let showDetails = {};
+  //   showDetails.id = elem.show.id;
+  //   showDetails.name = elem.show.name;
+  //   showDetails.summary = elem.show.summary;
+  //   showDetails.image = elem.show.image.medium;
+  //   showDetailsArray.push(showDetails);
+  // }
+
+  /** This does exactly the same thing as the loop above */
+  const showDetailsArray = showsArray.map((elem) => ({
+    id: elem.show.id,
+    name: elem.show.name,
+    summary:elem.show.summary,
+    image: elem.show.image.medium,
+  }));
 
 
   return showDetailsArray;
@@ -55,8 +65,8 @@ function displayShows(shows) {
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
-              alt="Bletchly Circle San Francisco"
+              src="${show.image}"
+              alt="${show.name}"
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
@@ -86,7 +96,7 @@ async function searchShowsAndDisplay() {
   displayShows(shows);
 }
 
-$searchForm.on("submit", async function handleSearchForm (evt) {
+$searchForm.on("submit", async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
