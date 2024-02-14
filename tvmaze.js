@@ -3,7 +3,14 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
+const URL_START = 'https://api.tvmaze.com/';
 
+
+/*
+fetching and awaiting, fetching will be getting list of shows matching our
+search term.
+will probably have to enter specific params to our api url
+*/
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -12,27 +19,26 @@ const $searchForm = $("#searchForm");
  *    (if no image URL given by API, put in a default image URL)
  */
 
-async function getShowsByTerm( /* term */) {
-  // ADD: Remove placeholder & make request to TVMaze search shows API.
 
-  return [
-    {
-      id: 1767,
-      name: "The Bletchley Circle",
-      summary:
-        `<p><b>The Bletchley Circle</b> follows the journey of four ordinary 
-           women with extraordinary skills that helped to end World War II.</p>
-         <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their 
-           normal lives, modestly setting aside the part they played in 
-           producing crucial intelligence, which helped the Allies to victory 
-           and shortened the war. When Susan discovers a hidden code behind an
-           unsolved murder she is met by skepticism from the police. She 
-           quickly realises she can only begin to crack the murders and bring
-           the culprit to justice with her former friends.</p>`,
-      image:
-          "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-    }
-  ]
+async function getShowsByTerm(searchTerm) {
+  // ADD: Remove placeholder & make request to TVMaze search shows API.
+  const response = await fetch(`${URL_START}search/shows?q=${searchTerm}`);
+  const showDetailsArray = [];
+  // for (let shows in response)
+  // loop over await response.json(), access each value, add to a value
+  // use map, return new array with an object of just these keys
+  const showsArray = await response.json();
+  for (let elem of showsArray) {
+    let showDetails = {};
+    showDetails.id = elem.show.id;
+    showDetails.name = elem.show.name;
+    showDetails.summary = elem.show.summary;
+    showDetails.image = elem.show.image.medium;
+    showDetailsArray.push(showDetails);
+  }
+
+
+  return showDetailsArray;
 }
 
 
@@ -48,9 +54,9 @@ function displayShows(shows) {
     const $show = $(`
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
-           <img 
-              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg" 
-              alt="Bletchly Circle San Francisco" 
+           <img
+              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
+              alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
