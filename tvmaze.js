@@ -3,8 +3,11 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
-// TODO: change to baseurl
-const URL_START = 'https://api.tvmaze.com/';
+const $episodesList = $("#episodesList");
+
+const BASE_URL = 'https://api.tvmaze.com/';
+const MISSING_IMG_URL = 'https://tinyurl.com/tv-missing';
+
 
 
 /*
@@ -22,15 +25,14 @@ will probably have to enter specific params to our api url
 
 async function getShowsByTerm(searchTerm) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const response = await fetch(`${URL_START}search/shows?q=${searchTerm}`);
+  const response = await fetch(`${BASE_URL}search/shows?q=${searchTerm}`);
   const showsArray = await response.json();
 
   const showDetailsArray = showsArray.map((elem) => ({
     id: elem.show.id,
     name: elem.show.name,
     summary: elem.show.summary,
-    // don't need parentheses below and missing image url can be a global const
-    image: (elem.show.image ? elem.show.image.medium : 'https://tinyurl.com/tv-missing'),
+    image: elem.show.image ? elem.show.image.medium : MISSING_IMG_URL,
   }));
 
   return showDetailsArray;
@@ -69,6 +71,7 @@ function displayShows(shows) {
 }
 
 
+
 /** Handle search form submission: get shows from API and display.
  *    Hide episodes area (that only gets shown if they ask for episodes)
  */
@@ -91,10 +94,46 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(id) {
+
+  const response = await fetch(`${BASE_URL}shows/${id}/episodes`);
+  const episodesArray = await response.json();
+
+  const episodeDetailsArray = episodesArray.map((elem) => ({
+    id: elem.id,
+    name: elem.name,
+    season: elem.season,
+    number: elem.number,
+    rating: elem.rating.average,
+  }));
+
+  return episodeDetailsArray
+
+}
+
 
 /** Write a clear docstring for this function... */
 
-// function displayEpisodes(episodes) { }
+function displayEpisodes(episodes) {
+  for (let episode of episodes) {
+    const name = episode.name;
+    const season = episode.season;
+    const number = episode.number;
+    const rating = episode.rating;
+
+    $episodesList.append($(
+      `<li>${name}(season:${season}, number ${number}, rating ${rating}</li>`
+      ));
+  }
+}
 
 // add other functions that will be useful / match our structure & design
+/*
+store id of show we're getting
+event delegation
+*/
+function searchEpisodesAndDisplay() {
+  const showID = $(`button .id`).closest()
+
+}
+
