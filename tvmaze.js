@@ -79,7 +79,6 @@ function displayShows(shows) {
 async function searchShowsAndDisplay() {
   const term = $("#searchForm-term").val();
   const shows = await getShowsByTerm(term);
-
   $episodesArea.hide();
   displayShows(shows);
 }
@@ -94,6 +93,7 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  *      { id, name, season, number }
  */
 
+/** Takes a number, id, and returns all episodes of a show in an array */
 async function getEpisodesOfShow(id) {
 
   const response = await fetch(`${BASE_URL}shows/${id}/episodes`);
@@ -107,15 +107,19 @@ async function getEpisodesOfShow(id) {
     rating: elem.rating.average,
   }));
 
-  return episodeDetailsArray
-
+  return episodeDetailsArray;
 }
 
 
 /** Write a clear docstring for this function... */
-
+/** Displays a list of episodes on the DOM with basic information included. Takes
+ * an array of episodes.
+ * Include example of what input looks like
+*/
 function displayEpisodes(episodes) {
+  $episodesList.empty();
   for (let episode of episodes) {
+    // destructure here instead
     const name = episode.name;
     const season = episode.season;
     const number = episode.number;
@@ -123,7 +127,7 @@ function displayEpisodes(episodes) {
 
     $episodesList.append($(
       `<li>${name}(season:${season}, number ${number}, rating ${rating}</li>`
-      ));
+    ));
   }
 }
 
@@ -132,8 +136,25 @@ function displayEpisodes(episodes) {
 store id of show we're getting
 event delegation
 */
-function searchEpisodesAndDisplay() {
-  const showID = $(`button .id`).closest()
 
+
+
+/** When the episodes button is clicked, shows episodes in the DOM. Takes a show
+ * ID.
+*/
+async function searchEpisodesAndDisplay(showId) {
+  const episodes = await getEpisodesOfShow(showId);
+  displayEpisodes(episodes);
 }
 
+
+$('#showsList').on('click', '.Show-getEpisodes', async function (evt) {
+  evt.preventDefault();
+  // show should be in display episodes
+  $episodesArea.show();
+  // use closest as a jquery method instead i.e. $(evt.target)
+  const button = evt.target.closest('.Show');
+  const showId = $(button).data('showId');
+  console.log(showId);
+  await searchEpisodesAndDisplay(showId);
+});
